@@ -86,7 +86,7 @@ namespace parser
         U2FsdGVkX18rY3j/AAAAANG1o0Gm0rUPax1Eoi74X1gE8URbVsMxoe/CT7EdaY2JRAI2C2nwSlA=
         //}
 
-        BOOST_SPIRIT_DEFINE(array, object, json);
+        BOOST_SPIRIT_DEFINE(array, object, json)
     }
 }
 
