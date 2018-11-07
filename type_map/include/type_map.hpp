@@ -57,7 +57,7 @@ U2FsdGVkX18rY3j/AAAAACyRUNu3KUfp
 namespace std
 {
     template<typename T, class TypeMap>
-    const auto& get(const TypeMap& tm)
+    decltype(auto) get(TypeMap& tm)
     {
         //{ How to call ``as``?
         U2FsdGVkX18rY3j/AAAAAH8QVkn3mKfo+JzdRrwIup7s7d0fZ2u6bDV3RAFsM4PK
