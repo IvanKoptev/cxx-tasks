@@ -19,18 +19,11 @@ template<class Iterator>
 class image_iterator: public boost::iterator_adaptor<image_iterator<Iterator>, Iterator>
 {
 private:
+    friend class boost::iterator_core_access;
     using diff_type = typename image_iterator::difference_type;
     int width_;
     int stride_;
     Iterator row_;
-
-public:
-    image_iterator(Iterator iter, size_t width, size_t stride) :
-            image_iterator::iterator_adaptor_(iter),
-            width_(width),
-            stride_(stride),
-            row_(iter)
-    {}
 
     void advance(diff_type n)
     {
@@ -73,6 +66,14 @@ public:
         }
         --this->base_reference();
     }
+    
+public:
+    image_iterator(Iterator iter, size_t width, size_t stride) :
+            image_iterator::iterator_adaptor_(iter),
+            width_(width),
+            stride_(stride),
+            row_(iter)
+    {}
 };
 //}
 
