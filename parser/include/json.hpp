@@ -36,12 +36,12 @@ namespace types
     namespace json
     {
         //{ describe json data types
-        ... value = ...
+        using value = variant_decorator<int, float, bool, std::string, std::nullptr_t, struct array, struct object>;
 
-        ... array
-        ... object
+        struct array : public std::vector<value> {};
+        struct object : public std::map<std::string, value> {};
 
-        ... json
+        using json = variant_decorator<array, object>;
         //}
     }
 }
@@ -55,20 +55,21 @@ namespace parser
         const auto sfloat_ = x3::real_parser<float, x3::strict_real_policies<float>>();
 
         //{ describe json grammar
-        ... number = ...
-        ... nullable = ...
+        const auto number = sfloat_ | x3::int_;
+        const auto nullable = x3::lit("null") >> x3::attr(nullptr);
 
-        ... array = ...
-        ... object = ...
-        ... json = ...
+        x3::rule<class array_, types::json::array> array;
+        x3::rule<class obect_, types::json::object> object;
+        x3::rule<class json_, types::json::json> json;
 
-        ... value = ...
+        const auto value = x3::rule<struct value, types::json::value> () 
+                         = nullable | number | x3::ascii::bool_ | quoted_string | array | object;
 
-        ... key_value = ...
+        const auto key_value = x3::rule<struct key_value, std::pair<std::string, types::json::value>> {} = quoted_string >> ':' >> value;
 
-        ... array??? = ...
-        ... object??? = ...
-        ... json??? = ...
+        const auto array_def =  '[' >> value % ',' >> ']';
+        const auto object_def = '{' >> key_value % ',' >> '}';
+        const auto json_def = array | object;
         //}
 
         BOOST_SPIRIT_DEFINE(array, object, json)
@@ -80,9 +81,9 @@ namespace literals
     namespace json
     {
         //{ describe ``_json`` literal
-        ... _json...
+        types::json::json operator "" _json(const char* str, size_t str_size)
         {
-
+            return parser::load_from_string<types::json::json>(std::string(str, str_size), parser::json::json);
         }
         //}
     }
