@@ -18,79 +18,68 @@
 template<class Iterator>
 class image_iterator: public boost::iterator_adaptor<image_iterator<Iterator>, Iterator>
 {
-public:
+private:
     using diff_type = typename image_iterator::difference_type;
+    int width_;
+    int stride_;
+    Iterator row_;
 
+public:
     image_iterator(Iterator iter, size_t width, size_t stride) :
             image_iterator::iterator_adaptor_(iter),
             width_(width),
-            stride_(stride)
+            stride_(stride),
+            row_(iter)
     {}
 
     void advance(diff_type n)
     {
-        size_t rest = (n > 0) ? width_ - index_ % stride_  - 1: index_ % stride_;
-        size_t stride_count = 0;
-
-        if (abs(n) > (int)rest)
+        auto offset = (this->base_reference() - row_);
+        double delta = n + offset;
+        double num_rows = delta / width_;
+        if (delta > 0)
         {
-            stride_count = ceil((double)(abs(n) - rest) / width_);
+            row_ += (int) num_rows * stride_;
+            this->base_reference() = row_ + delta - (int) num_rows * width_;
         }
-        int res = n/abs(n) * (stride_count * (stride_ - width_) + abs(n));
-        this->base_reference() += res;
-        index_ += res;
+        else
+        {
+            row_ += floor(num_rows) * stride_;
+            this->base_reference() = row_ + width_ + delta - (floor(num_rows) + 1) * width_;
+        }
     }
 
     diff_type distance_to( image_iterator const &x ) const
     {
-        auto n = x.base() - this->base();
-        auto rest = (n > 0) ? index_ : x.index_ % stride_;
-        auto s = abs(n) + rest;
-        auto res = abs(n)/n * (s/(int)stride_ * (int)width_ + s%(int)stride_  - rest);
-
-        return res;
+        return (x.row_ - row_) / stride_ * width_ + (x.base_reference() - x.row_) - (this->base_reference() - row_);
     }
 
     void increment()
     {
-        if (index_ % stride_ == 0)
+        if (this->base_reference() - row_ == width_ - 1)
         {
-            this->base_reference() += stride_ - width_ + 1;
-            index_ += stride_ - width_ + 1;
+            this->base_reference() += stride_ - width_;
+            row_ += stride_;
         }
-        else
-        {
-            this->base_reference()++;
-            index_++;
-        }
+        ++this->base_reference();
     }
 
     void decrement()
     {
-        if (width_- index_ % (int)stride_ == 0)
+        if (this->base_reference() - row_ == 0)
         {
-            this->base_reference() -= width_- index_ % (int)stride_ + 1;
-            index_ += width_- index_ % (int)stride_ + 1;
+            this->base_reference() -= stride_ - width_;
+            row_ -= stride_;
         }
-        else
-        {
-            this->base_reference()--;
-            index_--;
-        }
+        --this->base_reference();
     }
-
-private:
-    size_t width_;
-    size_t stride_;
-    size_t index_ = 0;
 };
 //}
 
-template<class Container = std::vector<uint8_t>>
+template<class Container = std::vector<int>>
 class image
 {
 public:
-    // stride > width
     image(size_t width, size_t height, size_t stride):
         data(stride * height),
         width_(width),
