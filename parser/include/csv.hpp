@@ -51,7 +51,7 @@ namespace parser
         namespace x3 = boost::spirit::x3;
 
         //{ csv grammar
-        const auto string = x3::no_skip[+(x3::char_ - ',' - '\n')];
+        const auto string = x3::no_skip[+(~x3::char_(",\n"))];
         const auto cell = x3::rule<class cell, std::string> ()
                         = parser::quoted_string | string;
 
