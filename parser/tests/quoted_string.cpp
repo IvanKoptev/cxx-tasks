@@ -38,6 +38,7 @@ TEST_CASE("quoted_string::quote")
 TEST_CASE("quoted_string::newline")
 {
     //? Why is it so weird string?
+    //! Тест предназначен для проверки правильности работы парсера с многострочными объектами, поэтому и разделение текста на три строки
     std::string s = R"("text with
 newlines
 ")";

@@ -36,6 +36,7 @@ namespace types
     namespace csv
     {
         //? Which kind of types should I use to describe the CSV type?
+        //! csv формат представляет собой двумерный массив строк. Вектор векторов подойдет
         //{
         using csv = std::vector<std::vector<std::string>>;
         //}
@@ -47,7 +48,9 @@ namespace parser
     namespace csv
     {
         //? Why I need a x3::no_skip here? Where is the original of the error?
+        //! По умолчанию spirit пропускает пробельные символы, но при парсинге значений строк необходимо учитывать все символы
         //? Where is BOOST_SPIRIT_DEFINE? Is it necessary?
+        //! BOOST_SPIRIT_DEFINE необходим при определении рекурентных структур таких как json
         namespace x3 = boost::spirit::x3;
 
         //{ csv grammar

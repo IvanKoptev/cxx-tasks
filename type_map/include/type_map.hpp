@@ -29,6 +29,7 @@ namespace detail
 }
 
 //? What is wrong with ``*this[i]``?
+//! Неверный порядок выполнения операторов. Необходимо заключить в скобки *(this[i])
 //{
 template <class U, class... Us>
 class type_map: public std::array<U, sizeof...(Us)>
