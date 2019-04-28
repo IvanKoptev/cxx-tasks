@@ -37,6 +37,7 @@ TEST_CASE("variant_decorator::as")
     CHECK(v.as<int>() == 45);
 
     //? Why shouldn't use just "text"?
+    //! "text" будет приведен к bool (char* -> bool), потому что приведение к стандартному типу более приоритетно. Поэтому явно приводим к std::string
     v = variant_decorator<std::string, bool>{"text"s};
     auto& inner = v.as<variant_decorator<std::string, bool>>();
     CHECK(inner.as<std::string>() == "text");
@@ -45,6 +46,7 @@ TEST_CASE("variant_decorator::as")
 TEST_CASE("variant_decorator::const")
 {
     //? Why I need ``variant_decorator<bool>{true}`` instead of just ``true``? Will it compile? Why?
+    //! true будет приведен к int, потому что приведение к стандартному типу более приоритетно. Поэтому явно инициализируем
     variant_decorator<int, variant_decorator<bool>> v{variant_decorator<bool>{true}};
     //? How to avoid duplicates in ``as`` for const version?
     const auto& b = v.as<variant_decorator<bool>>();
